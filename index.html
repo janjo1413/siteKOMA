@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Koma, Cosmos Serpent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Exo+2:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: painel de nave no espaço profundo (Edge of Eternities) — HUD com abas, campo de estrelas e nebulosa ao fundo, cartas em grade com brilho. */
+:root {
+  --void: #05070f;        /* espaço */
+  --hull: #0c1222;        /* painéis */
+  --hull-2: #121a30;
+  --line: #22305a;
+  --fg: #e6ecff;
+  --muted: #8d9bc4;
+  --cyan: #b39dff;        /* luz violeta da nebulosa */
+  --violet: #9d82ff;      /* nebulosa */
+  --amber: #ffc861;       /* destaque / mão perfeita */
+  --warn: #ff9a4d;
+  --pro: #6ff0a6;
+  --con: #ff7d8e;
+  --display: 'Chakra Petch', 'Segoe UI', system-ui, sans-serif;
+  --body: 'Exo 2', 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html{background:var(--void)}
+body{margin:0;color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;min-height:100vh;
+  background:
+    radial-gradient(1px 1px at 12% 18%, #fff9 50%, transparent 51%),
+    radial-gradient(1px 1px at 72% 8%, #fff8 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 38% 62%, #cfe 50%, transparent 51%),
+    radial-gradient(1px 1px at 85% 45%, #fff7 50%, transparent 51%),
+    radial-gradient(1px 1px at 22% 82%, #fff6 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 92% 88%, #dff 50%, transparent 51%),
+    radial-gradient(1px 1px at 55% 30%, #fff6 50%, transparent 51%),
+    radial-gradient(1px 1px at 5% 50%, #fff7 50%, transparent 51%),
+    radial-gradient(900px 600px at 85% -10%, #5b3fd955, transparent 70%),
+    radial-gradient(800px 700px at -10% 30%, #3b2a8f33, transparent 70%),
+    radial-gradient(700px 500px at 60% 110%, #8a2fb833, transparent 70%),
+    var(--void);
+  background-attachment:fixed;background-size:420px 420px,520px 520px,640px 640px,380px 380px,460px 460px,700px 700px,300px 300px,560px 560px,auto,auto,auto,auto}
+.wrap{max-width:1500px;margin:0 auto;padding-inline:16px;padding-block:22px 60px}
+a{color:var(--cyan)}
+
+/* topo */
+header.top{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:flex-start;justify-content:space-between;padding-block:6px 18px}
+.eyebrow{font-family:var(--display);font-size:.78rem;letter-spacing:.32em;text-transform:uppercase;color:var(--cyan);margin:0 0 6px;opacity:.85}
+header.top h1{font-family:var(--display);font-weight:700;font-size:clamp(1.8rem,4vw,2.9rem);margin:0;line-height:1.05;letter-spacing:.06em;text-transform:uppercase;text-wrap:balance;
+  background:linear-gradient(90deg,#fff 0%,#e4dcff 45%,var(--violet) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px #b39dff33)}
+.pips{display:inline-flex;gap:8px;vertical-align:middle;margin-left:12px}
+.pips img{width:.8em;height:.8em;display:block;filter:drop-shadow(0 0 6px #b39dff66)}
+header.top .sub{color:var(--muted);margin:8px 0 0;max-width:68ch}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.links a{border-radius:12px;color:var(--fg);text-decoration:none;font-size:.9rem;border:1px solid #b39dff55;background:linear-gradient(180deg,#b39dff14,#0c122299);padding:8px 14px;display:flex;flex-direction:column;gap:2px;max-width:300px;;transition:background .15s}
+.links a:hover{background:linear-gradient(180deg,#b39dff33,#0c1222cc)}
+.links a strong{font-family:var(--display);font-weight:600;letter-spacing:.04em}
+.links a span{color:var(--muted);font-size:.8rem;line-height:1.35}
+.side{display:flex;flex-direction:column;align-items:flex-end;gap:14px}
+.stats{display:flex;gap:22px;font-variant-numeric:tabular-nums}
+.stats div{display:flex;flex-direction:column;align-items:flex-end}
+.stats b{font-family:var(--display);font-size:1.6rem;color:#fff;text-shadow:0 0 14px #b39dff55}
+.stats small{font-size:.9rem;color:var(--muted)}
+.stats span{color:var(--muted);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase}
+.lang{display:inline-flex;border:1px solid var(--line);background:var(--hull);border-radius:999px;overflow:hidden}
+.lang button{font:600 .8rem var(--display);letter-spacing:.12em;background:none;border:0;color:var(--muted);padding:6px 12px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:#b39dff22;color:var(--cyan)}
+
+/* abas */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:20px;overflow-x:auto}
+.tabs button{font:600 .92rem var(--display);letter-spacing:.08em;text-transform:uppercase;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:12px 16px;cursor:pointer;white-space:nowrap}
+.tabs button:hover{color:var(--fg)}
+.tabs button[aria-selected="true"]{color:var(--cyan);border-bottom-color:var(--cyan);text-shadow:0 0 12px #b39dff77}
+
+/* barra de filtros */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:#05070fdd;backdrop-filter:blur(8px);border-block:1px solid var(--line);padding-block:10px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tools{justify-content:space-between}
+.chip{font:500 .84rem var(--body);padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--hull);color:var(--muted);cursor:pointer;}
+.chip[aria-pressed="true"]{color:#fff;border-color:var(--cyan);background:linear-gradient(180deg,#b39dff2e,#b39dff0d)}
+.chip .n{opacity:.7;margin-left:4px;font-variant-numeric:tabular-nums}
+.chip.warn[aria-pressed="true"]{border-color:var(--warn);background:#ff9a4d26}
+.chip:focus-visible,.card:focus-visible,button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.search{border-radius:999px;font:inherit;background:var(--hull);border:1px solid var(--line);color:var(--fg);padding:6px 10px;min-width:0;width:220px;max-width:100%}
+.toggle{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.9rem;user-select:none;color:var(--muted)}
+.toggle input{accent-color:var(--cyan);width:16px;height:16px}
+.linkbtn{font:inherit;font-size:.86rem;background:none;border:0;color:var(--cyan);cursor:pointer;padding:4px}
+
+/* seções e cartas */
+section.cat{margin-bottom:34px}
+section.cat h2{font-family:var(--display);font-weight:600;font-size:1.2rem;letter-spacing:.1em;text-transform:uppercase;margin:0;display:flex;gap:12px;align-items:baseline}
+section.cat h2::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);transform:translateY(-3px);flex:none}
+section.cat h2 .q{font-family:var(--body);font-size:.82rem;letter-spacing:0;text-transform:none;color:var(--muted);font-variant-numeric:tabular-nums}
+section.cat p.d{margin:2px 0 14px 22px;color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
+@media (min-width:900px){.grid{grid-template-columns:repeat(auto-fill,minmax(215px,1fr))}}
+.card{position:relative;padding:0;border:0;background:none;cursor:pointer;border-radius:4.5%/3.3%;display:block;width:100%;transition:transform .15s,filter .15s}
+.card img{display:block;width:100%;height:auto;aspect-ratio:63/88;object-fit:cover;border-radius:4.5%/3.3%;background:var(--hull-2);box-shadow:0 6px 18px #000a}
+.card:hover{transform:translateY(-4px)}
+.card:hover img{box-shadow:0 0 0 1px #b39dff88,0 0 22px #b39dff55,0 10px 24px #000c}
+.card.sec{opacity:.36}
+.card.sec:hover{opacity:.85}
+.card .qty{border-radius:6px;position:absolute;top:6px;left:6px;background:#05070fdd;color:#fff;font:700 .8rem var(--display);border:1px solid var(--cyan);padding:1px 7px;font-variant-numeric:tabular-nums}
+.card .flag{border-radius:999px;position:absolute;top:-4px;right:-4px;background:var(--warn);color:#1a0b00;font:700 .68rem var(--display);letter-spacing:.08em;padding:2px 8px;box-shadow:0 2px 8px #000a}
+.card .flag.dec{background:var(--amber)}
+.card .sectag{border-radius:999px;position:absolute;bottom:8px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#05070fe6;font-size:.7rem;border:1px solid var(--line);padding:2px 8px;color:var(--fg)}
+.empty{color:var(--muted);padding:30px 0;text-align:center}
+
+/* modal */
+dialog{border-radius:16px;border:1px solid #b39dff55;background:linear-gradient(180deg,var(--hull-2),var(--hull));color:var(--fg);padding:0;width:min(960px,calc(100vw - 32px));max-height:calc(100dvh - 32px);box-shadow:0 0 60px #b39dff1f,0 30px 80px #000}
+dialog::backdrop{background:#02030acc;backdrop-filter:blur(3px)}
+.m{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:26px;padding:24px;overflow:auto;max-height:calc(100dvh - 34px)}
+@media (max-width:700px){.m{grid-template-columns:1fr}.m .art{max-width:280px;margin:0 auto}}
+.m .art img{width:100%;border-radius:4.5%/3.3%;box-shadow:0 0 30px #b39dff33,0 10px 30px #000c}
+.m h3{font-family:var(--display);font-weight:700;font-size:1.6rem;letter-spacing:.04em;margin:0 0 8px;line-height:1.15;padding-right:36px}
+.m .cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tag{border-radius:999px;font-size:.76rem;padding:2px 9px;border:1px solid var(--line);color:var(--muted)}
+.tag.main{border-color:var(--cyan);color:var(--cyan)}
+.m .label{font:600 .72rem var(--display);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:18px 0 6px}
+.m blockquote{margin:0;font-size:1.05rem;line-height:1.6;border-left:2px solid var(--cyan);padding-left:14px;max-width:62ch}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:520px){.pc{grid-template-columns:1fr}}
+.pc ul{margin:0;padding-left:18px}.pc li{margin-bottom:4px}
+.pc .p li::marker{color:var(--pro)}.pc .c li::marker{color:var(--con)}
+.pc .p .label{color:var(--pro)}.pc .c .label{color:var(--con)}
+.note{border-radius:10px;background:#ffffff08;border:1px solid var(--line);padding:10px 12px;font-size:.95rem;max-width:62ch}
+.cut{border-radius:12px;border:1px solid var(--warn);background:#ff9a4d14;padding:12px 14px;margin-top:18px}
+.cut h4{margin:0 0 4px;font:600 .95rem var(--display);letter-spacing:.06em;color:var(--warn)}
+.cut p{margin:0 0 10px;font-size:.95rem}
+.subs{display:flex;gap:12px;flex-wrap:wrap}
+.subs figure{margin:0;width:130px}
+.subs img{width:100%;border-radius:4.5%/3.3%}
+.subs figcaption{font-size:.8rem;color:var(--muted);margin-top:4px}
+.close{border-radius:50%;position:absolute;top:12px;right:12px;width:34px;height:34px;border:1px solid var(--line);background:var(--void);color:var(--fg);font-size:1.2rem;cursor:pointer;line-height:1}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:20px}
+.nav button,.synbtn{border-radius:10px;font:600 .85rem var(--display);letter-spacing:.06em;background:var(--void);border:1px solid var(--line);color:var(--fg);padding:7px 12px;cursor:pointer}
+.nav button:disabled{opacity:.4;cursor:default}
+.synbtn{margin-top:18px;border-color:var(--cyan);background:linear-gradient(180deg,#b39dff2a,#b39dff0a);color:#fff;padding:9px 16px}
+.synbtn:disabled{opacity:.45;cursor:default}
+.synpanel{grid-column:1/-1;border-top:1px solid var(--line);padding-top:16px}
+.synpanel h4{font:600 1.05rem var(--display);letter-spacing:.06em;margin:0 0 2px}
+.synpanel p.hint{color:var(--muted);font-size:.88rem;margin:0 0 14px}
+.syngrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.flip{perspective:900px;aspect-ratio:63/88;cursor:pointer;border:0;padding:0;background:none;font:inherit;color:inherit;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:4.5%/3.3%;overflow:hidden}
+.flip .f img{width:100%;height:100%;object-fit:cover;display:block}
+.flip .b{transform:rotateY(180deg);background:radial-gradient(circle at 30% 0%,#5b3fd955,transparent 60%),linear-gradient(170deg,#3b2a8f44,var(--void));border:1px solid var(--cyan);padding:12px;display:flex;flex-direction:column;gap:8px;overflow:auto}
+.flip .b strong{font-family:var(--display);font-size:.92rem;line-height:1.15}
+.flip .b span{font-size:.85rem;line-height:1.4}
+.flip .b .go{margin-top:auto;align-self:flex-start;font-size:.8rem;color:var(--cyan);cursor:pointer}
+@media (prefers-reduced-motion:reduce){.flip .in,.card{transition:none}.card:hover{transform:none}}
+
+/* textos longos */
+.lead{font-size:1.15rem;line-height:1.6;max-width:70ch;margin:0 0 22px}
+a.cref{color:var(--cyan);text-decoration:underline;text-decoration-color:#b39dff66;text-underline-offset:3px;cursor:pointer}
+.winbtn{border-radius:12px;font:600 .95rem var(--display);letter-spacing:.06em;background:linear-gradient(180deg,#ffc8612a,#ffc8610a);border:1px solid var(--amber);color:#fff;padding:10px 18px;cursor:pointer;margin:-6px 0 30px;}
+.essay{max-width:74ch;margin-bottom:32px}
+.essay h3{font-family:var(--display);font-weight:600;font-size:1.25rem;letter-spacing:.06em;text-transform:uppercase;margin:30px 0 8px;color:#fff}
+.essay h3 span{color:var(--cyan);margin-right:8px}
+.essay p,.essay li{line-height:1.7}
+.essay ul,.essay ol{padding-left:22px}.essay li{margin-bottom:8px}
+.sw{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.panel{border-radius:14px;background:linear-gradient(180deg,#121a30cc,#0c1222cc);border:1px solid var(--line);padding:16px 18px}
+.sw h3,.check h3{font:600 1.05rem var(--display);letter-spacing:.08em;text-transform:uppercase;margin:0 0 8px}
+.sw .good{color:var(--pro)}.sw .bad{color:var(--con)}
+.sw ul,.check ul{margin:0;padding-left:20px}.sw li,.check li{margin-bottom:6px;max-width:62ch}
+.check{margin-bottom:26px;max-width:740px}
+.hand{margin-bottom:32px}
+.hand h3{font:600 1.15rem var(--display);letter-spacing:.06em;margin:0 0 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.verdict{border-radius:999px;font:700 .72rem var(--display);letter-spacing:.12em;padding:2px 10px}
+.verdict.keep{background:#6ff0a61f;color:var(--pro);border:1px solid var(--pro)}
+.verdict.mull{background:#ff7d8e1f;color:var(--con);border:1px solid var(--con)}
+.verdict.win{background:#b39dff1f;color:var(--cyan);border:1px solid var(--cyan)}
+.verdict.perfect{background:#ffc86124;color:var(--amber);border:1px solid var(--amber)}
+.hand.perfect{border-radius:16px;border:1px solid #ffc86188;background:radial-gradient(600px 200px at 0 0,#ffc86118,transparent 70%),#0c1222aa;padding:18px 20px;box-shadow:0 0 40px #ffc86114}
+.handrow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;max-width:1000px}
+@media (max-width:640px){.handrow{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.hand p{max-width:72ch;margin:10px 0 0}
+.hand p.need{color:var(--muted);font-size:.94rem;margin-top:6px}
+.steps{max-width:72ch;padding-left:22px;margin:10px 0 0}.steps li{margin-bottom:6px;line-height:1.55}
+.fora{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,430px),1fr));gap:18px}
+.foraitem{display:grid;grid-template-columns:140px minmax(0,1fr);gap:16px;align-items:start}
+.foraitem > img,.noimg{width:100%;height:auto;aspect-ratio:63/88;border-radius:4.5%/3.3%;box-shadow:0 6px 14px #000a}
+.noimg{display:grid;place-items:center;background:var(--void);border:1px dashed var(--line);color:var(--muted);font-family:var(--display);letter-spacing:.1em}
+.foraitem h3{font:600 1.02rem var(--display);letter-spacing:.03em;margin:2px 0 6px}
+.foraitem p{margin:0;line-height:1.55}
+.alt{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:.9rem;color:var(--muted)}
+.alt img{width:56px;border-radius:4.5%/3.3%}
+@media (max-width:480px){.foraitem{grid-template-columns:100px minmax(0,1fr)}}
+footer{color:var(--muted);font-size:.8rem;margin-top:40px;border-top:1px solid var(--line);padding-top:14px}
+[data-l]{display:none}
+html[lang="en"] [data-l="en"],html[lang="pt-BR"] [data-l="pt"]{display:revert}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow" data-t="eyebrow"></p>
+      <h1>Koma, Cosmos Serpent <span class="pips" aria-label="G U"><img src="mana-g.svg" alt="G"><img src="mana-u.svg" alt="U"></span></h1>
+      <p class="sub" data-t="sub"></p>
+      <div class="links">
+        <a href="https://archidekt.com/decks/15735130/koma_leaker_of_mana" target="_blank" rel="noopener"><strong data-t="paperT"></strong><span data-t="paperD"></span></a>
+        <a href="https://archidekt.com/decks/25677824/area_de_teste_koma" target="_blank" rel="noopener"><strong data-t="testT"></strong><span data-t="testD"></span></a>
+        <a href="https://archidekt.com/u/janjo1413" target="_blank" rel="noopener"><strong data-t="profT"></strong><span data-t="profD"></span></a>
+      </div>
+    </div>
+    <div class="side">
+      <div class="lang" role="group" aria-label="Language"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="pt" aria-pressed="false">PT</button></div>
+      <div class="stats" id="stats"></div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="deck" aria-selected="true" data-t="tabDeck"></button>
+    <button role="tab" data-tab="plano" aria-selected="false" data-t="tabPlan"></button>
+    <button role="tab" data-tab="fim" aria-selected="false" data-t="tabWins"></button>
+    <button role="tab" data-tab="maos" aria-selected="false" data-t="tabHands"></button>
+    <button role="tab" data-tab="fora" aria-selected="false" data-t="tabOut"></button>
+  </nav>
+
+  <!-- RESUMO -->
+  <section id="tab-plano" class="tabpane" hidden>
+    <div data-l="en">
+      <p class="lead">One-sided Koma stax. I choke everyone's mana and play off mana that doesn't come from lands, while <a class="cref" data-n="Koma, Cosmos Serpent">Koma</a> makes a Coil every upkeep to control the board. Once nobody can react anymore, the Coils end the game going wide.</p>
+      <button class="winbtn" data-goto="fim">See the cards that end the game →</button>
+      <div class="essay">
+        <h3><span>01</span>What Koma really does</h3>
+        <p>Koma costs 7 and can't be countered. It makes a 3/3 Koma's Coil at the beginning of <em>each</em> upkeep, including opponents', so at a four-player table that's four Coils per round without spending a card or mana. Each Coil can be sacrificed to tap a target permanent, which then can't activate abilities that turn, or to make Koma indestructible until end of turn.</p>
+        <p>In practice I use the Coils in each opponent's upkeep to tap their most important land, rock or creature, which stays useless for that whole turn. The Coils also protect Koma: against destroy effects I sac one for indestructible, and against edicts ("sacrifice a creature") I sac a Coil instead.</p>
+        <p>Since sacrificing a Coil is an ability with a target, anything that rewards targeting becomes an engine. <a class="cref" data-n="Loki, God of Mischief">Loki</a> draws a card each turn, <a class="cref" data-n="Freestrider Lookout">Freestrider Lookout</a> puts a land onto the battlefield when the target belongs to an opponent (a crime), and <a class="cref" data-n="Willbreaker">Willbreaker</a> steals every creature I target. With <a class="cref" data-n="Opposition">Opposition</a>, each Coil taps to tap something and then still gets sacrificed: two taps per Coil.</p>
+        <h3><span>02</span>The mana lock and why it's one-sided</h3>
+        <p><a class="cref" data-n="Winter Orb">Winter Orb</a> lets each player untap only one land per turn, and <a class="cref" data-n="Static Orb">Static Orb</a> only two permanents. For opponents that's devastating. For me it isn't, for three reasons:</p>
+        <ul>
+          <li><strong>Mana that isn't lands:</strong> <a class="cref" data-n="Sol Ring">Sol Ring</a>, <a class="cref" data-n="Mana Vault">Mana Vault</a>, <a class="cref" data-n="Thran Dynamo">Thran Dynamo</a>, dorks, Treasures from <a class="cref" data-n="Gala Greeters">Gala Greeters</a>, tokens from <a class="cref" data-n="Springleaf Parade">Springleaf Parade</a> and a fresh Tentacle every upkeep from <a class="cref" data-n="Verdant Kraken">Verdant Kraken</a>. Winter Orb only locks lands.</li>
+          <li><strong>Untappers:</strong> <a class="cref" data-n="Seedborn Muse">Seedborn Muse</a> gives me an untap on every opponent's turn, and <a class="cref" data-n="Kiora's Follower">Kiora's Follower</a>, <a class="cref" data-n="Ley Weaver">Ley Weaver</a> and <a class="cref" data-n="Garruk Wildspeaker">Garruk</a>'s +1 untap outside the untap step.</li>
+          <li><strong>Tapping my own Orb:</strong> in the end step of the player before me, I tap my Orb with a Coil or with Opposition. A tapped Orb restricts nothing, so in my untap step I untap everything (including the Orb, which goes back to locking everyone else).</li>
+        </ul>
+        <p><a class="cref" data-n="Vorinclex, Voice of Hunger">Vorinclex</a> reinforces it: lands opponents tap for mana don't even untap in their next untap step, and mine make double. <a class="cref" data-n="Sunder">Sunder</a> is the strongest piece: it returns every land to hand, and with an Orb out nobody can rebuild. The thing to watch is <a class="cref" data-n="Pact of Negation">Pact of Negation</a>: under my own lock I might not have the mana for its upkeep.</p>
+        <h3><span>03</span>Card engine</h3>
+        <p><a class="cref" data-n="Rhystic Study">Rhystic Study</a> and <a class="cref" data-n="Mystic Remora">Mystic Remora</a> get even better with the lock, because nobody has spare mana to pay the tax. <a class="cref" data-n="Elemental Bond">Elemental Bond</a> draws a card per Coil (Coils are 3/3), <a class="cref" data-n="Consecrated Sphinx">Consecrated Sphinx</a> and <a class="cref" data-n="Faerie Mastermind">Faerie Mastermind</a> punish players who draw a lot, and <a class="cref" data-n="The Theorist, Jace Beleren">Jace</a> draws in every opponent's draw step. With Coils paying the waterbend, <a class="cref" data-n="Spirit Water Revival">Spirit Water Revival</a> becomes draw seven.</p>
+        <h3><span>04</span>Interaction and protection</h3>
+        <p>One- and two-mana counters protect Koma once it's out and protect the lock pieces, which are the most fragile part of the deck. <a class="cref" data-n="Mana Drain">Mana Drain</a> also gives back mana to cast Koma the next turn, and <a class="cref" data-n="Tolaria West">Tolaria West</a> tutors Pact (mana value 0). <a class="cref" data-n="Cyclonic Rift">Cyclonic Rift</a> and <a class="cref" data-n="Hullbreaker Horror">Hullbreaker Horror</a> (flash, can't be countered) hold the table at instant speed, and with Seedborn I have that mana open every turn.</p>
+        <h3><span>05</span>Piloting turn by turn</h3>
+        <ol>
+          <li><strong>T1 to T3, ramp and build the engine.</strong> Fast mana, dorks and land ramp to reach 7 as early as possible. A cheap draw engine if possible. Hold a one- or two-mana counter if someone is accelerating too much.</li>
+          <li><strong>Before dropping an Orb.</strong> It only comes down once I already have mana that isn't lands or something to untap. An Orb too early without that locks me too. Read the table: against decks with lots of lands and few rocks, Winter Orb is much better.</li>
+          <li><strong>T4 to T6, Koma.</strong> From here every Coil gets used in opponents' upkeeps. If Koma dies, <a class="cref" data-n="Command Beacon">Command Beacon</a> brings it back without commander tax.</li>
+          <li><strong>Tutors based on the table.</strong> <a class="cref" data-n="Fabricate">Fabricate</a> finds an Orb against slow tables and a rock when I need to speed up. <a class="cref" data-n="Defense of the Heart">Defense of the Heart</a> and <a class="cref" data-n="Finale of Devastation">Finale</a> find Seedborn or Vorinclex to lock, or Craterhoof to close.</li>
+          <li><strong>Close.</strong> Once the table can't react anymore, move to one of the win lines.</li>
+        </ol>
+      </div>
+      <div class="sw">
+        <div class="panel"><h3 class="good">What the deck does well</h3><ul>
+          <li>A commander that can't be countered and generates value every upkeep, including on other players' turns.</li>
+          <li>Stax that hits opponents much harder than me.</li>
+          <li>Lots of card draw, so I rarely run out of resources.</li>
+          <li>Cheap instant-speed interaction, with several different ways to end the game.</li></ul></div>
+        <div class="panel"><h3 class="bad">Weaknesses and how to handle them</h3><ul>
+          <li><strong>Hexproof</strong> dodges the tap. Answers: <a class="cref" data-n="Glaring Spotlight">Glaring Spotlight</a> and <a class="cref" data-n="Arcane Lighthouse">Arcane Lighthouse</a>.</li>
+          <li><strong>Artifact and enchantment removal</strong> breaks the lock. Hold a counter for it, and Fabricate finds another Orb.</li>
+          <li><strong>Exile and bounce on Koma.</strong> Indestructible doesn't stop them. <a class="cref" data-n="Collective Resistance">Collective Resistance</a>'s hexproof mode protects against targeted removal.</li>
+          <li><strong>Fast combo before Koma.</strong> Depends on having a counter in hand, which is why hands with cheap interaction are worth more at fast tables.</li></ul></div>
+      </div>
+    </div>
+
+    <div data-l="pt">
+      <p class="lead">Koma de stax one-sided. Eu travo a mana de todo mundo e jogo com mana que não depende de land, enquanto a <a class="cref" data-n="Koma, Cosmos Serpent">Koma</a> gera uma Coil em cada upkeep pra controlar a mesa. Quando ninguém mais consegue reagir, as Coils fecham o jogo em go wide.</p>
+      <button class="winbtn" data-goto="fim">Ver as cartas que fecham o jogo →</button>
+      <div class="essay">
+        <h3><span>01</span>O que a Koma faz de verdade</h3>
+        <p>A Koma custa 7 e não pode ser counterada. Ela gera uma Koma's Coil 3/3 no começo de <em>cada</em> upkeep, inclusive no dos oponentes, então numa mesa de quatro são quatro Coils por rodada sem gastar carta nem mana. Cada Coil pode ser sacrificada pra virar uma permanente com target, e essa permanente não pode ativar habilidades no turno. Ou ela deixa a Koma indestrutível até o fim do turno.</p>
+        <p>Na prática, eu uso as Coils no upkeep de cada oponente pra virar a land, a pedra ou a criatura mais importante dele, que fica inútil naquele turno inteiro. As Coils também protegem a Koma: contra destroy eu sacrifico uma pra ficar indestrutível, e contra edito ("sacrifique uma criatura") eu sacrifico uma Coil no lugar.</p>
+        <p>Como sacrificar uma Coil é uma habilidade com target, tudo que paga por target vira motor. O <a class="cref" data-n="Loki, God of Mischief">Loki</a> compra uma carta por turno, o <a class="cref" data-n="Freestrider Lookout">Freestrider Lookout</a> põe uma land na mesa quando o alvo é de oponente (crime) e o <a class="cref" data-n="Willbreaker">Willbreaker</a> rouba cada criatura que eu alvejo. Com <a class="cref" data-n="Opposition">Opposition</a>, cada Coil vira pra dar tap e depois ainda é sacrificada: dois taps por Coil.</p>
+        <h3><span>02</span>A trava de mana e por que ela é one-sided</h3>
+        <p>O <a class="cref" data-n="Winter Orb">Winter Orb</a> deixa cada jogador desvirar só uma land por turno, e o <a class="cref" data-n="Static Orb">Static Orb</a> só duas permanentes. Pros oponentes isso é devastador. Pra mim, não, por três motivos:</p>
+        <ul>
+          <li><strong>Mana fora de land:</strong> <a class="cref" data-n="Sol Ring">Sol Ring</a>, <a class="cref" data-n="Mana Vault">Mana Vault</a>, <a class="cref" data-n="Thran Dynamo">Thran Dynamo</a>, dorks, Treasures da <a class="cref" data-n="Gala Greeters">Gala Greeters</a>, fichas da <a class="cref" data-n="Springleaf Parade">Springleaf Parade</a> e um Tentacle novo por upkeep do <a class="cref" data-n="Verdant Kraken">Verdant Kraken</a>. O Winter Orb só trava land.</li>
+          <li><strong>Peças que desviram:</strong> <a class="cref" data-n="Seedborn Muse">Seedborn Muse</a> me dá um untap em cada turno de oponente, e <a class="cref" data-n="Kiora's Follower">Kiora's Follower</a>, <a class="cref" data-n="Ley Weaver">Ley Weaver</a> e o +1 do <a class="cref" data-n="Garruk Wildspeaker">Garruk</a> desviram por fora do untap step.</li>
+          <li><strong>Virar o próprio Orb:</strong> no end step do jogador antes de mim, eu viro meu Orb com uma Coil ou com o Opposition. Um Orb virado não restringe nada, então no meu untap eu desviro tudo (inclusive o Orb, que volta a travar os outros).</li>
+        </ul>
+        <p>O <a class="cref" data-n="Vorinclex, Voice of Hunger">Vorinclex</a> reforça: as lands que os oponentes usam pra gerar mana nem desviram no próximo untap, e as minhas geram o dobro. O <a class="cref" data-n="Sunder">Sunder</a> é a peça mais forte: devolve todas as lands pra mão e, com o Orb na mesa, ninguém consegue reconstruir. O cuidado é o <a class="cref" data-n="Pact of Negation">Pact of Negation</a>: debaixo da minha própria trava pode faltar mana pro upkeep dele.</p>
+        <h3><span>03</span>Motor de cartas</h3>
+        <p><a class="cref" data-n="Rhystic Study">Rhystic Study</a> e <a class="cref" data-n="Mystic Remora">Mystic Remora</a> ficam ainda melhores com a trava, porque ninguém tem mana sobrando pra pagar a taxa. O <a class="cref" data-n="Elemental Bond">Elemental Bond</a> compra uma carta por Coil (as Coils são 3/3), o <a class="cref" data-n="Consecrated Sphinx">Consecrated Sphinx</a> e a <a class="cref" data-n="Faerie Mastermind">Faerie Mastermind</a> punem quem compra muito, e o <a class="cref" data-n="The Theorist, Jace Beleren">Jace</a> compra no draw step de cada oponente. Com as Coils pagando o waterbend, o <a class="cref" data-n="Spirit Water Revival">Spirit Water Revival</a> vira draw 7.</p>
+        <h3><span>04</span>Interação e proteção</h3>
+        <p>Counters de 1 e 2 mana protegem a Koma depois que ela entra e as peças de trava, que são o ponto mais frágil do deck. O <a class="cref" data-n="Mana Drain">Mana Drain</a> ainda devolve mana pra conjurar a Koma no turno seguinte, e a <a class="cref" data-n="Tolaria West">Tolaria West</a> busca o Pact (custo 0). <a class="cref" data-n="Cyclonic Rift">Cyclonic Rift</a> e <a class="cref" data-n="Hullbreaker Horror">Hullbreaker Horror</a> (flash, não pode ser counterado) seguram a mesa em instant speed, e com a Seedborn eu tenho essa mana aberta em todos os turnos.</p>
+        <h3><span>05</span>Como pilotar turno a turno</h3>
+        <ol>
+          <li><strong>T1 a T3, rampar e montar o motor.</strong> Fast mana, dorks e ramp de terreno pra chegar nos 7 o mais cedo possível. Um motor de compra barato se der. Segurar counter de 1 ou 2 mana se alguém estiver acelerando demais.</li>
+          <li><strong>Antes de baixar o Orb.</strong> Só desce quando eu já tenho mana fora de land ou alguém pra desvirar. Orb cedo demais sem isso me trava junto. Ler a mesa: contra deck de muita land e pouca pedra, o Winter Orb é muito melhor.</li>
+          <li><strong>T4 a T6, Koma.</strong> A partir daqui toda Coil é usada no upkeep dos oponentes. Se a Koma morrer, o <a class="cref" data-n="Command Beacon">Command Beacon</a> traz ela sem o commander tax.</li>
+          <li><strong>Tutores conforme a mesa.</strong> <a class="cref" data-n="Fabricate">Fabricate</a> busca Orb contra mesa lenta e pedra quando preciso acelerar. <a class="cref" data-n="Defense of the Heart">Defense of the Heart</a> e <a class="cref" data-n="Finale of Devastation">Finale</a> buscam Seedborn ou Vorinclex pra travar, ou o Craterhoof pra fechar.</li>
+          <li><strong>Fechar.</strong> Quando a mesa não consegue mais reagir, passar pra uma das linhas de vitória.</li>
+        </ol>
+      </div>
+      <div class="sw">
+        <div class="panel"><h3 class="good">O que o deck faz bem</h3><ul>
+          <li>Comandante que não pode ser counterado e gera valor todo upkeep, inclusive no turno dos outros.</li>
+          <li>Stax que pesa muito mais pros oponentes do que pra mim.</li>
+          <li>Muita compra de carta, então raramente fico sem recurso.</li>
+          <li>Interação barata e em instant speed, com vários jeitos diferentes de fechar o jogo.</li></ul></div>
+        <div class="panel"><h3 class="bad">Pontos fracos e como lidar</h3><ul>
+          <li><strong>Hexproof</strong> foge do tap. Respostas: <a class="cref" data-n="Glaring Spotlight">Glaring Spotlight</a> e <a class="cref" data-n="Arcane Lighthouse">Arcane Lighthouse</a>.</li>
+          <li><strong>Remoção de artefato e encantamento</strong> desmonta a trava. Guardar counter pra ela, e o Fabricate rebusca outro Orb.</li>
+          <li><strong>Exile e bounce na Koma.</strong> Indestrutível não segura. O modo de hexproof do <a class="cref" data-n="Collective Resistance">Collective Resistance</a> protege contra remoção com target.</li>
+          <li><strong>Combo rápido antes da Koma.</strong> Depende de ter counter na mão, por isso as mãos com interação barata valem mais em mesa rápida.</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FECHAM O JOGO -->
+  <section id="tab-fim" class="tabpane" hidden>
+    <p class="lead" data-t="winsLead"></p>
+    <div id="wins"></div>
+  </section>
+
+  <!-- MÃOS -->
+  <section id="tab-maos" class="tabpane" hidden>
+    <div class="panel check">
+      <div data-l="en"><h3>Quick keep checklist</h3><ul>
+        <li>Three or more mana sources, with at least two lands.</li>
+        <li>Both colors, or a clear way to find the missing one.</li>
+        <li>At least one ramp or fast mana piece.</li>
+        <li>Some draw or interaction so you don't stall.</li>
+        <li>Not just cards costing 5 or more.</li></ul></div>
+      <div data-l="pt"><h3>Checklist rápido pra keepar</h3><ul>
+        <li>Três fontes de mana ou mais, com pelo menos duas lands.</li>
+        <li>As duas cores, ou um jeito claro de achar a que falta.</li>
+        <li>Pelo menos uma peça de ramp ou fast mana.</li>
+        <li>Alguma compra ou interação pra não ficar parado.</li>
+        <li>Não pode ser só carta de 5 mana pra cima.</li></ul></div>
+    </div>
+    <div id="hands"></div>
+  </section>
+
+  <!-- FICARAM DE FORA -->
+  <section id="tab-fora" class="tabpane" hidden>
+    <p class="lead" data-t="outLead"></p>
+    <div id="fora" class="fora"></div>
+  </section>
+
+  <!-- CARTAS -->
+  <div id="tab-deck" class="tabpane">
+    <div class="bar">
+      <div class="row" id="chips" role="group"></div>
+      <div class="row tools">
+        <div class="row">
+          <label class="toggle"><input type="checkbox" id="multi"> <span data-t="multi"></span></label>
+          <button class="chip warn" id="onlyCut" aria-pressed="false" data-t="onlyCut"></button>
+        </div>
+        <div class="row">
+          <input class="search" id="q" type="search">
+          <button class="linkbtn" id="all" data-t="showAll"></button>
+        </div>
+      </div>
+    </div>
+    <main id="deck"></main>
+  </div>
+
+  <footer data-t="footer"></footer>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle"><button class="close" id="x" aria-label="Close">×</button><div id="dlgBody"></div></dialog>
+
+<script src="data.js?v=20"></script>
+<script src="data.en.js?v=20"></script>
+<script>
+const CATS = window.CATS, CARDS = window.CARDS, EN = window.EN || { cards: {}, syn: {}, extra: {} };
+const UI = {
+  en: {
+    eyebrow: 'Commander · Simic stax', sub: 'A Simic Commander deck built on land stax and control. Click any card to see why it is in the deck.',
+    paperT: 'My paper deck ↗', paperD: 'What I actually own. Some cards I am still buying.',
+    testT: 'Test environment ↗', testD: 'Where I validate my ideas. This is the list this site shows.',
+    profT: 'My Archidekt profile ↗', profD: 'All my decks.',
+    tabDeck: 'Cards', tabPlan: 'Deck summary', tabWins: 'Game enders', tabHands: 'Hands to keep', tabOut: 'Left out',
+    sCards: 'cards', sLands: 'lands (+MDFC)', sCuts: 'under review',
+    multi: 'Show multiple categories', onlyCut: 'Under review to cut', search: 'Search card', showAll: 'Show all',
+    card: 'card', cards: 'cards', secondary: n => `+${n} secondary`, noCards: 'No cards match these filters.',
+    flagDec: 'CUTTING', flagMaybe: 'MAYBE',
+    think: 'What I think', pros: 'Pros', cons: 'Cons', rules: 'Rules note',
+    cutDec: 'Will be cut', cutMaybe: 'Thinking about cutting', cutIn: ' · replacing it',
+    synShow: n => `View synergies (${n})`, synHide: n => `Hide synergies (${n})`, synNone: 'No synergies listed',
+    synTitle: n => `Synergies of ${n}`, synHint: 'Click a card to see why. Click again to flip it back.', synOpen: 'Open this card →',
+    prev: '← Previous', next: 'Next →',
+    perfect: 'PERFECT HAND', keep: 'KEEP', mull: 'MULLIGAN', heads: 'Heads up:',
+    winsLead: 'The lines that basically end the game. Click a card to see its explanation.',
+    outLead: 'Cards that look good for Koma but I chose not to play, and why.', altTutor: 'If I were to add a tutor:',
+    footer: 'Version 2.0 · card images via Scryfall · Magic: The Gathering is a trademark of Wizards of the Coast.'
+  },
+  pt: {
+    eyebrow: 'Commander · stax simic', sub: 'Deck de Commander simic de stax de terreno e controle. Clique numa carta para ver por que ela está no deck.',
+    paperT: 'Meu deck no papel ↗', paperD: 'O que eu tenho de verdade. Algumas cartas ainda estou comprando.',
+    testT: 'Ambiente de testes ↗', testD: 'Onde eu valido minhas ideias. É a lista que este site mostra.',
+    profT: 'Meu perfil no Archidekt ↗', profD: 'Todos os meus decks.',
+    tabDeck: 'Cartas', tabPlan: 'Resumo do deck', tabWins: 'Fecham o jogo', tabHands: 'Mãos para keepar', tabOut: 'Ficaram de fora',
+    sCards: 'cartas', sLands: 'lands (+MDFC)', sCuts: 'em avaliação',
+    multi: 'Mostrar categorias múltiplas', onlyCut: 'Em avaliação para sair', search: 'Buscar carta', showAll: 'Mostrar todas',
+    card: 'carta', cards: 'cartas', secondary: n => `+${n} secundária${n > 1 ? 's' : ''}`, noCards: 'Nenhuma carta com esses filtros.',
+    flagDec: 'VAI SAIR', flagMaybe: 'PENSANDO',
+    think: 'O que eu acho', pros: 'Vantagens', cons: 'Desvantagens', rules: 'Observação de regra',
+    cutDec: 'Vai sair', cutMaybe: 'Pensando em tirar', cutIn: ' · no lugar entra',
+    synShow: n => `Visualizar sinergias (${n})`, synHide: n => `Esconder sinergias (${n})`, synNone: 'Sem sinergias cadastradas',
+    synTitle: n => `Sinergias de ${n}`, synHint: 'Clique numa carta para ver o porquê. Clique de novo para voltar à imagem.', synOpen: 'Abrir esta carta →',
+    prev: '← Anterior', next: 'Próxima →',
+    perfect: 'MÃO PERFEITA', keep: 'KEEP', mull: 'MULLIGAN', heads: 'Atenção:',
+    winsLead: 'As linhas que praticamente fecham o jogo. Clique numa carta para ver a explicação dela.',
+    outLead: 'Cartas que parecem boas pra Koma mas eu escolhi não colocar, e o porquê.', altTutor: 'Se fosse colocar um tutor:',
+    footer: 'Versão 2.0 · imagens das cartas via Scryfall · Magic: The Gathering é marca da Wizards of the Coast.'
+  }
+};
+let lang = 'en'; // o site sempre começa em inglês
+const t = k => UI[lang][k];
+const img = id => `cards/${id}.webp`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+const qty = c => c.q || 1;
+const catIdx = Object.fromEntries(CATS.map((c, i) => [c.k, i]));
+const catName = k => lang === 'en' ? (EN.extra.cats?.[catIdx[k]]?.n ?? CATS[catIdx[k]].n) : CATS[catIdx[k]].n;
+const catDesc = k => lang === 'en' ? (EN.extra.cats?.[catIdx[k]]?.d ?? CATS[catIdx[k]].d) : CATS[catIdx[k]].d;
+const cardTxt = (c, f) => {
+  if (lang === 'en') { const e = EN.cards[c.n]; if (e) { if (f === 'cut') return e.cut ?? c.cut?.motivo; if (e[f] != null) return e[f]; } }
+  return f === 'cut' ? c.cut?.motivo : c[f];
+};
+const synTxt = s => lang === 'en' ? (EN.syn[s] ?? s) : s;
+const ex = (list, i, f, orig) => lang === 'en' ? (EN.extra[list]?.[i]?.[f] ?? orig) : orig;
+
+const state = { on: new Set(CATS.map(c => c.k)), multi: false, onlyCut: false, q: '' };
+try { localStorage.removeItem('koma-v1'); } catch (e) {}
+const save = () => {};
+
+const idxByName = Object.fromEntries(CARDS.map((c, i) => [c.n, i]));
+const SYNMAP = CARDS.map(() => []);
+(window.SYN || []).forEach(([a, b, s]) => {
+  const i = idxByName[a], j = idxByName[b]; if (i === undefined || j === undefined) return;
+  SYNMAP[i].push({ j, s }); SYNMAP[j].push({ j: i, s });
+});
+
+function renderStatic() {
+  document.documentElement.lang = lang === 'en' ? 'en' : 'pt-BR';
+  document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
+  document.getElementById('q').placeholder = t('search');
+  document.getElementById('q').setAttribute('aria-label', t('search'));
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  const total = CARDS.reduce((s, c) => s + qty(c), 0);
+  const lands = CARDS.filter(c => c.cat === 'util' || c.cat === 'base').reduce((s, c) => s + qty(c), 0);
+  const mdfc = CARDS.filter(c => c.sec.includes('base') && c.cat !== 'util').length;
+  const cuts = CARDS.filter(c => c.cut).length;
+  document.getElementById('stats').innerHTML = `<div><b>${total}</b><span>${t('sCards')}</span></div><div><b>${lands}<small> +${mdfc}</small></b><span>${t('sLands')}</span></div><div><b>${cuts}</b><span>${t('sCuts')}</span></div>`;
+}
+
+// chips
+const chipsEl = document.getElementById('chips');
+function renderChips() {
+  chipsEl.innerHTML = CATS.map(c => {
+    const n = CARDS.filter(x => x.cat === c.k).reduce((s, x) => s + qty(x), 0);
+    return `<button class="chip" data-k="${c.k}" aria-pressed="${state.on.has(c.k)}">${esc(catName(c.k))}<span class="n">${n}</span></button>`;
+  }).join('');
+}
+chipsEl.addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return; const k = b.dataset.k;
+  if (state.on.size === CATS.length) state.on = new Set([k]);
+  else if (state.on.has(k)) { state.on.delete(k); if (!state.on.size) state.on = new Set(CATS.map(c => c.k)); }
+  else state.on.add(k);
+  save(); renderChips(); render();
+});
+document.getElementById('all').onclick = () => { state.on = new Set(CATS.map(c => c.k)); state.q = ''; state.onlyCut = false; document.getElementById('q').value = ''; document.getElementById('onlyCut').setAttribute('aria-pressed', 'false'); save(); renderChips(); render(); };
+const multiEl = document.getElementById('multi'); multiEl.checked = state.multi;
+multiEl.onchange = () => { state.multi = multiEl.checked; save(); render(); };
+document.getElementById('onlyCut').onclick = e => { state.onlyCut = !state.onlyCut; e.currentTarget.setAttribute('aria-pressed', state.onlyCut); render(); };
+document.getElementById('q').oninput = e => { state.q = e.target.value.trim().toLowerCase(); render(); };
+
+let visibleOrder = [];
+function cardBtn(c, secondary) {
+  const i = CARDS.indexOf(c);
+  const flag = c.cut ? `<span class="flag ${c.cut.status === 'decidido' ? 'dec' : ''}">${c.cut.status === 'decidido' ? t('flagDec') : t('flagMaybe')}</span>` : '';
+  return `<button class="card ${secondary ? 'sec' : ''}" data-i="${i}" aria-label="${esc(c.n)}">
+    <img src="${img(c.img)}" alt="" loading="lazy" width="420" height="585">
+    ${qty(c) > 1 ? `<span class="qty">${qty(c)}</span>` : ''}${flag}
+    ${secondary ? `<span class="sectag">${esc(catName(c.cat))}</span>` : ''}</button>`;
+}
+function render() {
+  const match = c => (!state.q || c.n.toLowerCase().includes(state.q)) && (!state.onlyCut || c.cut);
+  visibleOrder = [];
+  const html = CATS.filter(cat => state.on.has(cat.k)).map(cat => {
+    const prim = CARDS.filter(c => c.cat === cat.k && match(c));
+    const sec = state.multi ? CARDS.filter(c => c.cat !== cat.k && c.sec.includes(cat.k) && match(c)) : [];
+    if (!prim.length && !sec.length) return '';
+    prim.concat(sec).forEach(c => visibleOrder.push(CARDS.indexOf(c)));
+    const n = prim.reduce((s, c) => s + qty(c), 0);
+    return `<section class="cat"><h2>${esc(catName(cat.k))} <span class="q">${n} ${n === 1 ? t('card') : t('cards')}${sec.length ? ` · ${t('secondary')(sec.length)}` : ''}</span></h2>
+      <p class="d">${esc(catDesc(cat.k))}</p>
+      <div class="grid">${prim.map(c => cardBtn(c, false)).join('')}${sec.map(c => cardBtn(c, true)).join('')}</div></section>`;
+  }).join('');
+  document.getElementById('deck').innerHTML = html || `<p class="empty">${t('noCards')}</p>`;
+}
+document.getElementById('deck').addEventListener('click', e => { const b = e.target.closest('.card'); if (b) open(+b.dataset.i); });
+
+// modal
+const dlg = document.getElementById('dlg'), body = document.getElementById('dlgBody');
+let cur = -1, keepSyn = false;
+const list = (items, cls, title) => !items || !items.length ? '' : `<div class="${cls}"><div class="label">${title}</div><ul>${items.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+function open(i) {
+  cur = i; const c = CARDS[i]; const syns = SYNMAP[i];
+  const tags = [`<span class="tag main">${esc(catName(c.cat))}</span>`].concat(c.sec.map(k => `<span class="tag">${esc(catName(k))}</span>`)).join('');
+  const pc = list(cardTxt(c, 'pro'), 'p', t('pros')) + list(cardTxt(c, 'con'), 'c', t('cons'));
+  const obs = cardTxt(c, 'obs');
+  const cut = c.cut ? `<div class="cut"><h4>${c.cut.status === 'decidido' ? t('cutDec') : t('cutMaybe')}${c.cut.subs.length ? t('cutIn') : ''}</h4><p>${esc(cardTxt(c, 'cut'))}</p>
+      ${c.cut.subs.length ? `<div class="subs">${c.cut.subs.map(s => `<figure><img src="${img(s.img)}" alt="${esc(s.n)}"><figcaption>${esc(s.n)}</figcaption></figure>`).join('')}</div>` : ''}</div>` : '';
+  const pos = visibleOrder.indexOf(i);
+  body.innerHTML = `<div class="m">
+    <div class="art"><img src="${img(c.img)}" alt="${esc(c.n)}"></div>
+    <div>
+      <h3 id="dlgTitle">${esc(c.n)}${qty(c) > 1 ? ` <span style="color:var(--muted);font-size:1rem">×${qty(c)}</span>` : ''}</h3>
+      <div class="cats">${tags}</div>
+      <div class="label">${t('think')}</div>
+      <blockquote>${esc(cardTxt(c, 'op'))}</blockquote>
+      ${pc ? `<div class="pc">${pc}</div>` : ''}
+      ${obs ? `<div class="label">${t('rules')}</div><div class="note">${esc(obs)}</div>` : ''}
+      ${cut}
+      <button class="synbtn" id="synbtn" aria-expanded="${keepSyn}" ${syns.length ? '' : 'disabled'}>${syns.length ? (keepSyn ? t('synHide') : t('synShow'))(syns.length) : t('synNone')}</button>
+      <div class="nav"><button id="prev" ${pos <= 0 ? 'disabled' : ''}>${t('prev')}</button><button id="next" ${pos < 0 || pos >= visibleOrder.length - 1 ? 'disabled' : ''}>${t('next')}</button></div>
+    </div>
+    <div class="synpanel" id="synpanel" ${keepSyn && syns.length ? '' : 'hidden'}>
+      <h4>${esc(t('synTitle')(c.n))}</h4><p class="hint">${t('synHint')}</p>
+      <div class="syngrid">${syns.map(s => `<button class="flip" aria-pressed="false" aria-label="${esc(CARDS[s.j].n)}">
+        <div class="in"><div class="f"><img src="${img(CARDS[s.j].img)}" alt="" loading="lazy"></div>
+        <div class="b"><strong>${esc(CARDS[s.j].n)}</strong><span>${esc(synTxt(s.s))}</span><span class="go" role="link" tabindex="0" data-open="${s.j}">${t('synOpen')}</span></div></div>
+      </button>`).join('')}</div>
+    </div></div>`;
+  body.querySelector('#prev').onclick = () => step(-1);
+  body.querySelector('#next').onclick = () => step(1);
+  const panel = body.querySelector('#synpanel'), sb = body.querySelector('#synbtn');
+  sb.onclick = () => { keepSyn = panel.hidden; panel.hidden = !keepSyn; sb.setAttribute('aria-expanded', keepSyn); sb.textContent = (keepSyn ? t('synHide') : t('synShow'))(syns.length); if (keepSyn) panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  panel.addEventListener('click', e => {
+    const go = e.target.closest('[data-open]'); if (go) { e.stopPropagation(); open(+go.dataset.open); return; }
+    const f = e.target.closest('.flip'); if (!f) return; const on = !f.classList.contains('on'); f.classList.toggle('on', on); f.setAttribute('aria-pressed', on);
+  });
+  panel.addEventListener('keydown', e => { const go = e.target.closest('[data-open]'); if (go && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.stopPropagation(); open(+go.dataset.open); } });
+  body.querySelector('.m').scrollTop = 0;
+  if (!dlg.open) dlg.showModal();
+}
+function step(d) { const p = visibleOrder.indexOf(cur) + d; if (p >= 0 && p < visibleOrder.length) open(visibleOrder[p]); }
+document.getElementById('x').onclick = () => dlg.close();
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+dlg.addEventListener('close', () => { keepSyn = false; });
+document.addEventListener('keydown', e => { if (!dlg.open) return; if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); });
+
+// abas
+const TABS = ['deck', 'plano', 'fim', 'maos', 'fora'];
+function showTab(k) {
+  if (!TABS.includes(k)) k = 'deck';
+  TABS.forEach(x => { document.getElementById('tab-' + x).hidden = x !== k; });
+  document.querySelectorAll('.tabs [role="tab"]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === k));
+}
+function goTab(k) { showTab(k); try { history.replaceState(null, '', '#' + k); } catch (err) {} }
+document.querySelector('.tabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (b) goTab(b.dataset.tab); });
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-goto]'); if (g) { goTab(g.dataset.goto); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  const a = e.target.closest('.cref'); if (a) { e.preventDefault(); const i = idxByName[a.dataset.n]; if (i !== undefined) open(i); }
+});
+
+const cardRow = names => `<div class="handrow">${names.map(n => { const i = idxByName[n]; return i === undefined ? '' :
+  `<button class="card" data-i="${i}" aria-label="${esc(n)}"><img src="${img(CARDS[i].img)}" alt="" loading="lazy" width="420" height="585"></button>`; }).join('')}</div>`;
+function renderWins() {
+  document.getElementById('wins').innerHTML = (window.WINS || []).map((w, i) => `
+    <div class="hand"><h3>${esc(ex('wins', i, 't', w.t))} <span class="verdict win">${esc(ex('wins', i, 'tipo', w.tipo).toUpperCase())}</span></h3>
+      ${cardRow(w.c)}<p>${esc(ex('wins', i, 'how', w.how))}</p><p class="need"><strong>${t('heads')}</strong> ${esc(ex('wins', i, 'need', w.need))}</p></div>`).join('');
+}
+function renderHands() {
+  document.getElementById('hands').innerHTML = (window.HANDS || []).map((h, i) => {
+    const steps = ex('hands', i, 'steps', h.steps);
+    return `<div class="hand ${h.v === 'perfect' ? 'perfect' : ''}"><h3>${esc(ex('hands', i, 't', h.t))} <span class="verdict ${h.v}">${h.v === 'perfect' ? t('perfect') : h.v === 'keep' ? t('keep') : t('mull')}</span></h3>
+      ${cardRow(h.c)}<p>${esc(ex('hands', i, 'why', h.why))}</p>${steps ? `<ol class="steps">${steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol>` : ''}</div>`;
+  }).join('');
+}
+function renderFora() {
+  document.getElementById('fora').innerHTML = (window.FORA || []).map((f, i) => `
+    <article class="panel foraitem">
+      ${f.img ? `<img src="${img(f.img)}" alt="${esc(f.n)}" loading="lazy" width="420" height="585">` : `<div class="noimg">LANDFALL</div>`}
+      <div><h3>${esc(ex('fora', i, 'n', f.n))}</h3><p>${esc(ex('fora', i, 'why', f.why))}</p>
+      ${f.alt ? `<div class="alt"><img src="${img(f.alt.img)}" alt="${esc(f.alt.n)}" loading="lazy"><span>${t('altTutor')} <strong>${esc(f.alt.n)}</strong></span></div>` : ''}</div>
+    </article>`).join('');
+}
+['wins', 'hands'].forEach(id => document.getElementById(id).addEventListener('click', e => { const b = e.target.closest('.card'); if (b) open(+b.dataset.i); }));
+
+function renderAll() { renderStatic(); renderChips(); render(); renderWins(); renderHands(); renderFora(); if (dlg.open && cur >= 0) open(cur); }
+document.querySelector('.lang').addEventListener('click', e => { const b = e.target.closest('[data-lang]'); if (!b || b.dataset.lang === lang) return; lang = b.dataset.lang; renderAll(); });
+
+showTab((location.hash || '').slice(1));
+renderAll();
+</script>
+
+</html>
